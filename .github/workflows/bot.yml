@@ -1,0 +1,43 @@
+name: stock-ir-bot
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Restore DB cache
+        uses: actions/cache@v4
+        with:
+          path: bot.db
+          key: bot-db-${{ runner.os }}-${{ github.ref }}
+          restore-keys: |
+            bot-db-${{ runner.os }}-
+
+      - name: Run bot
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          EDINET_API_KEY: ${{ secrets.EDINET_API_KEY }}
+          MAX_POSTS_PER_RUN: '3'
+          DRY_RUN: 'true'
+        run: python app.py
