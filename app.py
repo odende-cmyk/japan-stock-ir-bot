@@ -324,9 +324,6 @@ def collect_items() -> List[Dict]:
 
 
 def main() -> None:
-    force_test_post()
-    return
-
     init_db()
     items = collect_items()
 
