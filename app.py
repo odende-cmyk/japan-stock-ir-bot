@@ -183,8 +183,8 @@ def parse_jpx_items(html: str) -> List[Dict]:
             continue
 
         event_type = infer_event_type(title_text)
-# if not event_type:
-#     continue
+        if not event_type:
+            continue
 
         external_id = hashlib.sha256(f"JPX|{code_text}|{title_text}|{href}".encode()).hexdigest()
         items.append(
