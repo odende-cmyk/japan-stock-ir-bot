@@ -246,10 +246,35 @@ def parse_edinet_items(docs: List[Dict]) -> List[Dict]:
 
 
 def post_to_x(text: str) -> Dict:
-    api_key = get_env("X_API_KEY")
-    api_secret = get_env("X_API_SECRET")
-    access_token = get_env("X_ACCESS_TOKEN")
-    access_token_secret = get_env("X_ACCESS_TOKEN_SECRET")
+    ...
+    return resp.json()
+
+
+# 👇ここに貼る
+def force_test_post():
+    api_key = os.getenv("X_API_KEY")
+    api_secret = os.getenv("X_API_SECRET")
+    access_token = os.getenv("X_ACCESS_TOKEN")
+    access_token_secret = os.getenv("X_ACCESS_TOKEN_SECRET")
+
+    oauth = OAuth1Session(
+        client_key=api_key,
+        client_secret=api_secret,
+        resource_owner_key=access_token,
+        resource_owner_secret=access_token_secret,
+    )
+
+    text = "【テスト投稿】IRボット接続確認"
+
+    resp = oauth.post(
+        "https://api.x.com/2/tweets",
+        json={"text": text},
+        timeout=30
+    )
+
+    print("=== TEST POST RESULT ===")
+    print(resp.status_code, resp.text)
+    print("========================")
 
     oauth = OAuth1Session(
         client_key=api_key,
@@ -299,6 +324,9 @@ def collect_items() -> List[Dict]:
 
 
 def main() -> None:
+    force_test_post()
+    return
+
     init_db()
     items = collect_items()
 
