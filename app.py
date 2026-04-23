@@ -143,12 +143,50 @@ def implication_text(label: str, event_type: str) -> str:
 
 def build_post_text(code: str, company: str, title: str, event_type: str, source_url: str) -> str:
     label = infer_label(title)
-    line1 = f"【{label}】{code} {company}"
-    line2 = short_event_text(event_type, title)
-    line3 = implication_text(label, event_type)
-    body = f"{line1}\n{line2}\n{line3}\n{source_url}\n#日本株 #IR #{code}"
+
+    event_names = {
+        "up_revision": "上方修正",
+        "down_revision": "下方修正",
+        "buyback": "自社株買い",
+        "dividend_up": "増配",
+        "dividend_down": "減配",
+        "split": "株式分割",
+        "ma": "M&A",
+        "large_holder": "大量保有",
+    }
+
+    event_name = event_names.get(event_type, "IR")
+
+    point = {
+        "up_revision": "通期業績予想の引き上げを発表。",
+        "down_revision": "通期業績予想の引き下げを発表。",
+        "buyback": "自己株式取得を発表。",
+        "dividend_up": "配当予想の引き上げを発表。",
+        "dividend_down": "配当予想の引き下げを発表。",
+        "split": "株式分割を発表。",
+        "ma": "M&A関連の開示を発表。",
+        "large_holder": "大量保有報告書関連の提出を確認。",
+    }.get(event_type, normalize_text(title))
+
+    impact = implication_text(label, event_type)
+
+    body = (
+        f"【{label}/{event_name}】{code} {company}\n"
+        f"・内容：{point}\n"
+        f"・注目点：{impact}\n"
+        f"・開示：{normalize_text(title)}\n"
+        f"{source_url}\n"
+        f"#日本株 #{code}"
+    )
+
     if len(body) > 280:
-        body = f"{line1}\n{line2}\n{line3}\n#日本株 #IR #{code}"
+        body = (
+            f"【{label}/{event_name}】{code} {company}\n"
+            f"・内容：{point}\n"
+            f"・注目点：{impact}\n"
+            f"#日本株 #{code}"
+        )
+
     return body[:280]
 
 
