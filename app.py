@@ -86,6 +86,29 @@ def normalize_text(text: str) -> str:
     text = re.sub(r"\s+", " ", text or "").strip()
     return text
 
+def extract_numbers(text: str) -> str:
+    if not text:
+        return ""
+
+    patterns = [
+        r"\d+\.?\d*％",
+        r"\d+\.?\d*%",
+        r"\d+[億万千円]+",
+        r"\d+\.?\d*倍",
+    ]
+
+    found = []
+    for p in patterns:
+        matches = re.findall(p, text)
+        found.extend(matches)
+
+    found = list(dict.fromkeys(found))
+
+    if not found:
+        return ""
+
+    return " / ".join(found[:3])
+
 
 def infer_label(title: str) -> str:
     title = title or ""
@@ -169,10 +192,10 @@ def build_post_text(code: str, company: str, title: str, event_type: str, source
     }.get(event_type, normalize_text(title))
 
     impact = implication_text(label, event_type)
-
+    numbers = extract_numbers(title)
     body = (
         f"【{label}/{event_name}】{code} {company}\n"
-        f"・内容：{point}\n"
+        f"・内容：{point}{f'（{numbers}）' if numbers else ''}\n"
         f"・注目点：{impact}\n"
         f"・開示：{normalize_text(title)}\n"
         f"{source_url}\n"
