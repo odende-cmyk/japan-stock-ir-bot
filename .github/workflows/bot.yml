@@ -39,5 +39,5 @@ jobs:
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
           EDINET_API_KEY: ${{ secrets.EDINET_API_KEY }}
           MAX_POSTS_PER_RUN: '1'
-          DRY_RUN: 'true'
+          DRY_RUN: 'false'
         run: python app.py
