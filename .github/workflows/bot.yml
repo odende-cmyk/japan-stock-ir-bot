@@ -27,7 +27,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: bot.db
-          key: bot-db-${{ runner.os }}-${{ github.ref }}
+          key: bot-db-v2-${{ runner.os }}-${{ github.ref }}
           restore-keys: |
             bot-db-${{ runner.os }}-
 
