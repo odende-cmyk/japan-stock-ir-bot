@@ -198,7 +198,6 @@ def build_post_text(code: str, company: str, title: str, event_type: str, source
         f"・内容：{point}{f'（{numbers}）' if numbers else ''}\n"
         f"・注目点：{impact}\n"
         f"・開示：{normalize_text(title)}\n"
-        f"{source_url}\n"
         f"#日本株 #{code}"
     )
 
