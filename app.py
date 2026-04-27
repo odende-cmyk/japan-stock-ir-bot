@@ -179,6 +179,8 @@ def build_post_text(code: str, company: str, title: str, event_type: str, source
     }
 
     event_name = event_names.get(event_type, "IR")
+    if event_type == "up_revision":
+       event_name = "🚀上方修正"
 
     point = {
         "up_revision": "通期業績予想の引き上げを発表。",
@@ -193,6 +195,9 @@ def build_post_text(code: str, company: str, title: str, event_type: str, source
 
     impact = implication_text(label, event_type)
     numbers = extract_numbers(title)
+
+    if event_type == "up_revision":
+     impact = "業績見通しの改善。市場の見直し買いが入りやすい材料。"
     body = (
         f"【{label}/{event_name}】{code} {company}\n"
         f"・内容：{point}{f'（{numbers}）' if numbers else ''}\n"
