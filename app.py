@@ -225,6 +225,61 @@ def parse_jpx_items(html: str) -> List[Dict]:
     soup = BeautifulSoup(html, "lxml")
     items = []
 
+    rows = soup.select("table tr")
+    print(f"[DEBUG] JPX table rows: {len(rows)}")
+
+    raw_count = 0
+    matched_count = 0
+
+    for tr in rows:
+        tds = tr.find_all("td")
+        if len(tds) < 4:
+            continue
+
+        raw_count += 1
+
+        time_text = normalize_text(tds[0].get_text(" ", strip=True))
+        code_text = normalize_text(tds[1].get_text(" ", strip=True))
+        company_text = normalize_text(tds[2].get_text(" ", strip=True))
+        title_text = normalize_text(tds[3].get_text(" ", strip=True))
+
+        if raw_count <= 10:
+            print(f"[DEBUG] raw row: time={time_text} code={code_text} company={company_text} title={title_text}")
+
+        a = tds[3].find("a")
+        href = a.get("href") if a else None
+        if href and href.startswith("/"):
+            href = f"https://www.release.tdnet.info{href}"
+
+        if not code_text or not title_text:
+            continue
+
+        event_type = infer_event_type(title_text)
+
+        if not event_type:
+            continue
+
+        matched_count += 1
+
+        external_id = hashlib.sha256(f"JPX|{code_text}|{title_text}|{href}".encode()).hexdigest()
+        items.append(
+            {
+                "source": "JPX",
+                "external_id": external_id,
+                "time": time_text,
+                "code": code_text,
+                "company": company_text,
+                "title": title_text,
+                "url": href or "https://www.release.tdnet.info/",
+                "event_type": event_type,
+            }
+        )
+
+    print(f"[DEBUG] JPX raw_count: {raw_count}")
+    print(f"[DEBUG] JPX matched_count: {matched_count}")
+
+    return items
+
     for tr in soup.select("table tr"):
         tds = tr.find_all("td")
         if len(tds) < 4:
