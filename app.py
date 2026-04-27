@@ -366,16 +366,10 @@ def parse_edinet_items(docs: List[Dict]) -> List[Dict]:
 
 
 def post_to_x(text: str) -> Dict:
-    ...
-    return resp.json()
-
-
-# 👇ここに貼る
-def force_test_post():
-    api_key = os.getenv("X_API_KEY")
-    api_secret = os.getenv("X_API_SECRET")
-    access_token = os.getenv("X_ACCESS_TOKEN")
-    access_token_secret = os.getenv("X_ACCESS_TOKEN_SECRET")
+    api_key = get_env("X_API_KEY")
+    api_secret = get_env("X_API_SECRET")
+    access_token = get_env("X_ACCESS_TOKEN")
+    access_token_secret = get_env("X_ACCESS_TOKEN_SECRET")
 
     oauth = OAuth1Session(
         client_key=api_key,
@@ -384,13 +378,21 @@ def force_test_post():
         resource_owner_secret=access_token_secret,
     )
 
-    text = "【テスト投稿】IRボット接続確認"
-
     resp = oauth.post(
-        "https://api.x.com/2/tweets",
+        X_POST_URL,
         json={"text": text},
         timeout=30
     )
+
+    print("=== X POST RESULT ===")
+    print(resp.status_code, resp.text)
+    print("=====================")
+
+    if resp.status_code >= 300:
+        raise RuntimeError(f"X post failed: {resp.status_code} {resp.text}")
+
+    return resp.json()
+
 
     print("=== TEST POST RESULT ===")
     print(resp.status_code, resp.text)
