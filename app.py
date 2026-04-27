@@ -251,8 +251,14 @@ def parse_jpx_items(html: str) -> List[Dict]:
 
         a = tds[3].find("a")
         href = a.get("href") if a else None
-        if href and href.startswith("/"):
-            href = f"https://www.release.tdnet.info{href}"
+
+        if href:
+            if href.startswith("/"):
+                href = f"https://www.release.tdnet.info{href}"
+            elif href.startswith("http"):
+                href = href
+            else:
+                href = f"https://www.release.tdnet.info/inbs/{href}"
 
         if not code_text or not title_text:
             continue
