@@ -388,6 +388,67 @@ def main() -> None:
     init_db()
     items = collect_items()
 
+    print("=== DEBUG ===")
+    print(f"collected_items: {len(items)}")
+
+    if items:
+        print("sample_items:")
+        for item in items[:5]:
+            print(json.dumps(item, ensure_ascii=False))
+    else:
+        print("no items collected")
+    print("=============")
+
+    items = sorted(items, key=lambda x: (x.get("time", ""), x["code"], x["title"]))
+
+    posted_count = 0
+    dry_run = os.getenv("DRY_RUN", "false").lower() == "true"
+    max_posts = int(os.getenv("MAX_POSTS_PER_RUN", "3"))
+
+    print(f"dry_run: {dry_run}")
+    print(f"max_posts: {max_posts}")
+
+    for item in items:
+        print(f"checking: {item['code']} {item['company']} {item['title']} / event_type={item['event_type']}")
+
+        if posted_count >= max_posts:
+            print("skip: max_posts reached")
+            break
+
+        if already_posted(item["source"], item["external_id"]):
+            print("skip: already posted")
+            continue
+
+        if not should_post_now(item):
+            print("skip: should_post_now false")
+            continue
+
+        text = build_post_text(
+            code=item["code"],
+            company=item["company"],
+            title=item["title"],
+            event_type=item["event_type"],
+            source_url=item["url"],
+        )
+
+        print("=" * 80)
+        print(text)
+        print("=" * 80)
+
+        if dry_run:
+            mark_posted(item["source"], item["external_id"])
+            posted_count += 1
+            continue
+
+        try:
+            result = post_to_x(text)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            mark_posted(item["source"], item["external_id"])
+            posted_count += 1
+            time.sleep(2)
+        except Exception as e:
+            print(f"[ERROR] failed posting: {e}")
+
     items = sorted(items, key=lambda x: (x.get("time", ""), x["code"], x["title"]))
 
     posted_count = 0
