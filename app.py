@@ -218,6 +218,10 @@ def fetch_jpx_html(date_jst: datetime) -> str:
     url = JPX_DISCLOSURE_URL.format(date_str)
     resp = requests.get(url, timeout=20)
     resp.raise_for_status()
+
+    # JPX/TDnetページの文字化け対策
+    resp.encoding = "utf-8"
+
     return resp.text
 
 
