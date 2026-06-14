@@ -247,7 +247,8 @@ def parse_jpx_items(html: str) -> List[Dict]:
         raw_count += 1
 
         time_text = normalize_text(tds[0].get_text(" ", strip=True))
-        code_text = normalize_text(tds[1].get_text(" ", strip=True))
+        if code_text.isdigit() and len(code_text) == 5:
+            code_text = code_text[:4]
         company_text = normalize_text(tds[2].get_text(" ", strip=True))
         title_text = normalize_text(tds[3].get_text(" ", strip=True))
 
